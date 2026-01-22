@@ -1,6 +1,5 @@
-import { AbsoluteFill, Audio, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Audio, Img, interpolate, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { z } from "zod";
-import { useAudioEffect } from "../hooks/useAudioEffect";
 
 export const dfsVideoSchema = z.object({});
 
@@ -48,28 +47,6 @@ const dfsExplanations: { [key: string]: string } = {
   "F": "Visitamos F, hijo de C",
 };
 
-// Audio component for each node visit
-const NodeAudioEffect: React.FC<{ nodeId: string; frame: number; startFrame: number }> = ({
-  nodeId,
-  frame,
-  startFrame,
-}) => {
-  const index = dfsOrder.indexOf(nodeId);
-  const shouldPlay = frame === startFrame;
-
-  // Different frequencies for different nodes (creates a musical pattern)
-  const frequencies = [523, 587, 659, 698, 784, 880]; // C5, D5, E5, F5, G5, A5
-  const frequency = frequencies[index % frequencies.length];
-
-  useAudioEffect(shouldPlay, {
-    frequency,
-    duration: 0.3,
-    type: "sine",
-    volume: 0.2,
-  });
-
-  return null;
-};
 
 export const DFSVideo: React.FC<z.infer<typeof dfsVideoSchema>> = () => {
   const frame = useCurrentFrame();
@@ -271,13 +248,16 @@ export const DFSVideo: React.FC<z.infer<typeof dfsVideoSchema>> = () => {
       {/* Audio effects for each node */}
       {dfsOrder.map((nodeId, index) => {
         const nodeStartFrame = startAnimationFrame + index * framesPerNode;
+        const audioDurationFrames = Math.floor(0.3 * fps); // 0.3 seconds
+
         return (
-          <NodeAudioEffect
+          <Sequence
             key={`audio-${nodeId}`}
-            nodeId={nodeId}
-            frame={frame}
-            startFrame={nodeStartFrame}
-          />
+            from={nodeStartFrame}
+            durationInFrames={audioDurationFrames}
+          >
+            <Audio src={staticFile(`audio/node-${nodeId}.wav`)} volume={0.5} />
+          </Sequence>
         );
       })}
 
