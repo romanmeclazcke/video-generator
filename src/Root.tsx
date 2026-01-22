@@ -1,6 +1,7 @@
 import "./index.css";
 import { Composition, getStaticFiles } from "remotion";
 import { AIVideo, aiVideoSchema } from "./components/AIVideo";
+import { DFSVideo, dfsVideoSchema } from "./components/DFSVideo";
 import { FPS, INTRO_DURATION } from "./lib/constants";
 import { getTimelinePath, loadTimelineFromFile } from "./lib/utils";
 
@@ -12,6 +13,16 @@ export const RemotionRoot: React.FC = () => {
 
   return (
     <>
+      <Composition
+        id="DFS-Algorithm"
+        component={DFSVideo}
+        fps={FPS}
+        width={1080}
+        height={1920}
+        durationInFrames={600}
+        schema={dfsVideoSchema}
+        defaultProps={{}}
+      />
       {timelines.map((storyName) => (
         <Composition
           id={storyName}
